@@ -1,15 +1,9 @@
-import collections
-import math
-import re
-import os
 import logging
 import numpy as np
 import torch
+from tqdm import tqdm
 import d2l.torch as d2l
 import sacrebleu
-import tqdm
-from torch import nn, Tensor
-from torch.functional import F
 from torch.utils.data import DataLoader
 
 import config
@@ -41,7 +35,7 @@ def train_transformer(model, loss_fn, optimizer, num_epochs, device):
     for epoch in range(num_epochs):
         metric = d2l.Accumulator(2)
         timer = d2l.Timer()
-        for batch in train_iter:
+        for batch in tqdm(train_iter):
             X, X_valid_lens, Y, Y_valid_lens = [x.to(device) for x in batch]
             Y_hat = model(X, Y[:, :-1], X_valid_lens)
             loss = loss_fn(Y_hat, Y[:, 1:], Y_valid_lens)
@@ -53,7 +47,7 @@ def train_transformer(model, loss_fn, optimizer, num_epochs, device):
         bleu_score = evaluate(model, dev_iter, device)
         logging.info(f'epoch: {epoch + 1:.3f}, loss: {metric[0] / metric[1]:.3f}, '
                      f'speed: {metric[1] / timer.stop():.3f} tokens/sec on {device}, '
-                     f'bleu score: {bleu_score}')
+                     f'bleu score: {bleu_score:.3f}')
 
         # 如果当前epoch的模型在dev集上的loss优于之前记录的最优loss则保存当前模型，并更新最优loss值
         if bleu_score > best_bleu_score:
@@ -76,7 +70,7 @@ def evaluate(model, dev_iter, device):
     sp_cn = chinese_tokenizer_load()
     pred_texts = []
     tgt_texts = []
-    for batch in dev_iter:
+    for batch in tqdm(dev_iter):
         X, X_valid_lens, Y, Y_valid_lens = [x.to(device) for x in batch]
         pred_text = batch_greedy_decode(model, X, X_valid_lens, sp_en, sp_cn, device)
         pred_texts.extend(pred_text)

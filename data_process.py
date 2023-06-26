@@ -15,11 +15,7 @@ class Batch:
     def __init__(self, src_text, tgt_text, src_ids, src_valid_lens, tgt_ids, tgt_valid_lens):
         self.src_text = src_text
         self.tgt_text = tgt_text
-        self.src_ids = src_ids
-        self.src_valid_lens = src_valid_lens
-        self.tgt_ids = tgt_ids
-        self.tgt_valid_lens = tgt_valid_lens
-        self.train_data = [self.src_ids, self.src_valid_lens, self.tgt_ids, self.tgt_valid_lens]
+        self.train_data = [src_ids, src_valid_lens, tgt_ids, tgt_valid_lens]
 
     def __iter__(self):
         self.index = -1
@@ -82,7 +78,7 @@ class NMTDataset(Dataset):
 
         src_mask = torch.ones_like(batch_input) * self.PAD
         tgt_mask = torch.ones_like(batch_target) * self.PAD
-        src_valid_lens = batch_input == src_mask
-        tgt_valid_lens = batch_target == tgt_mask
+        src_valid_lens = torch.sum(batch_input != src_mask, dim=1)
+        tgt_valid_lens = torch.sum(batch_target != tgt_mask, dim=1)
 
         return Batch(src_text, tgt_text, batch_input, src_valid_lens, batch_target, tgt_valid_lens)

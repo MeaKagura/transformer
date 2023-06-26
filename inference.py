@@ -40,15 +40,20 @@ def batch_greedy_decode(model, src_ids, src_valid_lens, src_tokenizer, tgt_token
     enc_output = model.encoder(src_ids, src_valid_lens)
     dec_input = torch.Tensor([src_tokenizer.bos_id()]).repeat(src_ids.shape[0], 1).to(device).type(torch.int64)
     state = (enc_output, src_valid_lens, [None] * model.num_layers)
-    batch_size, count = src_ids.shape[0], 0
-    dec_outputs = [[] for _ in range(batch_size)]
+    batch_size, count = src_ids.shape[0], 0,
+    dec_outputs, stop_flag = [[] for _ in range(batch_size)], [False for _ in range(batch_size)]
     for _ in range(max_len):
         dec_input, state = model.decoder(dec_input, state)
         pred_ids = torch.argmax(dec_input, dim=2)
         for i in range(batch_size):
+            if count == batch_size:
+                break
+            if stop_flag[i] is True:
+                continue
             if pred_ids[i][0] == tgt_tokenizer.eos_id():
                 count += 1
-            pred_token = tgt_tokenizer.decode_ids(pred_ids[i])
+                stop_flag[i] = True
+            pred_token = tgt_tokenizer.decode_ids(pred_ids[i][0].cpu().numpy().item())
             dec_outputs[i].append(pred_token)
         dec_input = pred_ids
     return [' '.join(dec_output) for dec_output in dec_outputs]
@@ -75,7 +80,7 @@ def bleu(pred_text: str, label_text: str, k: int):
 
 
 def translate_one_sentence(model, device):
-    model.load_state_dict(torch.load(config.model_path))
+    # model.load_state_dict(torch.load(config.model_path))
     model.eval()
     sp_en = english_tokenizer_load()
     sp_cn = chinese_tokenizer_load()

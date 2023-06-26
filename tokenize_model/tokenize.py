@@ -50,13 +50,13 @@ def test():
 
 def chinese_tokenizer_load():
     sp_chn = spm.SentencePieceProcessor()
-    sp_chn.Load('{}.model'.format("./tokenizer/chn"))
+    sp_chn.Load('{}.model'.format("./tokenize_model/chn"))
     return sp_chn
 
 
 def english_tokenizer_load():
     sp_eng = spm.SentencePieceProcessor()
-    sp_eng.Load('{}.model'.format("./tokenizer/eng"))
+    sp_eng.Load('{}.model'.format("./tokenize_model/eng"))
     return sp_eng
 
 

@@ -13,10 +13,10 @@ if __name__ == "__main__":
             ch_lines.append(item[1] + '\n')
             en_lines.append(item[0] + '\n')
 
-    with open(ch_path, "w") as fch:
+    with open(ch_path, "w", encoding='utf-8') as fch:
         fch.writelines(ch_lines)
 
-    with open(en_path, "w") as fen:
+    with open(en_path, "w", encoding='utf-8') as fen:
         fen.writelines(en_lines)
 
     # lines of Chinese: 252777

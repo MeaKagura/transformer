@@ -4,7 +4,6 @@ import re
 import os
 import numpy as np
 import torch
-import d2l.torch as d2l
 from torch import nn, Tensor
 from torch.functional import F
 from torch.utils import data
@@ -110,18 +109,18 @@ class MultiHeadAttention(nn.Module):
         super().__init__()
         self.num_heads = num_heads
         self.attention = DotProductAttention(dropout)
-        self.W_q = nn.Linear(query_size, num_hiddens, bias)
-        self.W_k = nn.Linear(key_size, num_hiddens, bias)
-        self.W_v = nn.Linear(value_size, num_hiddens, bias)
+        self.W_q = nn.Linear(num_hiddens, query_size * num_heads, bias)
+        self.W_k = nn.Linear(num_hiddens, key_size * num_heads, bias)
+        self.W_v = nn.Linear(num_hiddens, value_size * num_heads, bias)
         self.W_o = nn.Linear(num_hiddens, num_hiddens, bias)
 
     def forward(self, queries: Tensor, keys: Tensor, values: Tensor, valid_lens: Tensor) -> Tensor:
         """
-        :param queries: [batch_size, num_queries, query_size]
-        :param keys: [batch_size, num_keys, key_size]
-        :param values: [batch_size, num_values, value_size]
+        :param queries: [batch_size, num_queries, num_hiddens]
+        :param keys: [batch_size, num_keys, num_hiddens]
+        :param values: [batch_size, num_values, num_hiddens]
         :param valid_lens: [batch_size,] or [batch_size, num_queries]
-        :return attention_results: [batch_size, num_queries, num_hiddens]
+        :return attention_results: [batch_size, num_queries, value_size * num_heads]
         """
         # q/k/v: [batch_size * num_heads, num_q/k/v, num_hiddens/num_heads]
         queries = transpose_qkv(self.W_q(queries), self.num_heads)
