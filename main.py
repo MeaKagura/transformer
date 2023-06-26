@@ -48,7 +48,7 @@ def main():
                         value_size, num_hiddens, num_heads, ffn_input, ffn_hiddens,
                         ln_shape, dropout, bias=False)
     loss_fn = MaskedSoftmaxCELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr)
+    optimizer = torch.optim.AdamW(model.parameters(), lr)
 
     train_transformer(model, loss_fn, optimizer, num_epochs, device)
 

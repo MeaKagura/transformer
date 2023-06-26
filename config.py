@@ -16,7 +16,7 @@ tgt_vocab_size = 32000
 batch_size = 32
 epoch_num = 40
 early_stop = 5
-lr = 3e-4
+lr = 2e-4
 
 # greed decode的最大句子长度
 max_len = 60
@@ -42,7 +42,7 @@ gpu_id = '0'
 device_id = [0]
 
 # set device
-if gpu_id != '':
+if torch.cuda.is_available():
     device = torch.device(f"cuda:{gpu_id}")
 else:
     device = torch.device('cpu')

@@ -338,7 +338,7 @@ class MaskedSoftmaxCELoss(nn.CrossEntropyLoss):
         weights[~mask] = 0
         self.reduction = 'none'
         unweighted_loss = super().forward(pred.permute(0, 2, 1), target)
-        weighted_loss = (unweighted_loss * weights).mean(dim=1).sum()
+        weighted_loss = (unweighted_loss * weights).sum()
         return weighted_loss
 
 
